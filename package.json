@@ -1,0 +1,15 @@
+{
+  "name": "commitzip-chrome-extension",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Chrome extension that downloads only the files changed by a GitHub commit.",
+  "scripts": {
+    "test": "node --test extension/test/*.test.js",
+    "package": "bash scripts/package.sh"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

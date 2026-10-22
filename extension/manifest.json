@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "CommitZip — دانلود فایل‌های کامیت",
+  "short_name": "CommitZip",
+  "version": "1.0.0",
+  "description": "فقط فایل‌های تغییرکرده در یک کامیت گیت‌هاب را در یک فایل ZIP دانلود کنید.",
+  "permissions": [
+    "activeTab",
+    "downloads",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://api.github.com/*",
+    "https://github.com/*",
+    "https://raw.githubusercontent.com/*"
+  ],
+  "action": {
+    "default_title": "دانلود فایل‌های این کامیت",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

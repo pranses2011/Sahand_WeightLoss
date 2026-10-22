@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>CommitZip</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <div class="brand-row">
+          <img class="brand-icon" src="icons/icon48.png" width="48" height="48" alt="">
+          <div>
+            <div class="eyebrow">ابزار کوچک گیت‌هاب</div>
+            <h1>Commit<span>Zip</span></h1>
+          </div>
+          <span class="version">۱.۰</span>
+        </div>
+        <p>فقط فایل‌هایی که در یک کامیت تغییر کرده‌اند؛ با همان ساختار پوشه‌ها.</p>
+      </header>
+
+      <form id="download-form" novalidate>
+        <label for="commit-input">لینک کامیت</label>
+        <div class="input-wrap" id="input-wrap">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M10.6 13.4a1.98 1.98 0 0 0 2.8 0l3-3a2 2 0 0 0-2.8-2.8l-1.7 1.7M13.4 10.6a1.98 1.98 0 0 0-2.8 0l-3 3a2 2 0 0 0 2.8 2.8l1.7-1.7"/>
+          </svg>
+          <input
+            id="commit-input"
+            name="commit"
+            type="text"
+            dir="ltr"
+            inputmode="url"
+            spellcheck="false"
+            autocomplete="off"
+            placeholder="github.com/user/repo/commit/abc123…"
+            aria-describedby="input-help"
+          >
+          <button class="clear-button" id="clear-input" type="button" aria-label="پاک کردن ورودی" title="پاک کردن">×</button>
+        </div>
+        <div class="input-meta" id="input-help">
+          <span id="page-detected" class="detected" hidden>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            از صفحه فعلی پیدا شد
+          </span>
+          <span id="format-hint">یا: <bdi dir="ltr">user/repo@sha</bdi></span>
+        </div>
+
+        <details class="token-panel" id="token-panel">
+          <summary>
+            <span class="summary-main">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="3"/><path d="m10.2 12.8 7.3-7.3M15 8l2 2M17 6l2 2"/></svg>
+              توکن گیت‌هاب
+              <span class="optional">اختیاری</span>
+            </span>
+            <svg class="chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg>
+          </summary>
+          <div class="token-body">
+            <p>برای مخزن خصوصی یا عبور از محدودیت API، توکن فقط‌خواندنی وارد کنید.</p>
+            <div class="token-input-wrap">
+              <input id="token-input" type="password" dir="ltr" autocomplete="off" placeholder="github_pat_…" aria-label="توکن گیت‌هاب">
+              <button id="toggle-token" type="button" aria-label="نمایش توکن" title="نمایش یا پنهان کردن توکن">
+                <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                <svg class="eye-closed" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 6.1A10.8 10.8 0 0 1 12 6c6 0 9.5 6 9.5 6a16 16 0 0 1-2.1 2.7M6.5 6.5C4 8.1 2.5 12 2.5 12s3.5 6 9.5 6c1.4 0 2.7-.3 3.8-.8M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+              </button>
+            </div>
+            <label class="checkbox-label">
+              <input id="remember-token" type="checkbox">
+              <span class="custom-checkbox"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 8 3 3 6-6"/></svg></span>
+              در این مرورگر ذخیره شود
+            </label>
+          </div>
+        </details>
+
+        <section class="message error-message" id="error-message" role="alert" hidden>
+          <div class="message-icon">!</div>
+          <div>
+            <strong id="error-title">مشکلی پیش آمد</strong>
+            <p id="error-text"></p>
+            <ul id="error-files" hidden></ul>
+          </div>
+        </section>
+
+        <section class="commit-card" id="commit-card" aria-live="polite" hidden>
+          <div class="commit-topline">
+            <span class="status-dot"></span>
+            <span>کامیت پیدا شد</span>
+            <code id="commit-sha" dir="ltr"></code>
+          </div>
+          <h2 id="commit-message"></h2>
+          <div class="commit-meta">
+            <span id="commit-author"></span>
+            <span class="meta-separator">•</span>
+            <time id="commit-date"></time>
+          </div>
+          <div class="file-stats" id="file-stats"></div>
+          <p class="truncate-warning" id="truncate-warning" hidden>گیت‌هاب فهرست کامیت‌های بسیار بزرگ را به ۳٬۰۰۰ فایل محدود می‌کند.</p>
+        </section>
+
+        <section class="progress-card" id="progress-card" aria-live="polite" hidden>
+          <div class="progress-head">
+            <div>
+              <span class="progress-kicker" id="progress-kicker">در حال بررسی</span>
+              <strong id="progress-title">دریافت اطلاعات کامیت…</strong>
+            </div>
+            <span id="progress-percent" dir="ltr">—</span>
+          </div>
+          <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="پیشرفت دانلود">
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+          <div class="progress-foot">
+            <span id="progress-detail">ارتباط امن با GitHub</span>
+            <span id="progress-size" dir="ltr"></span>
+          </div>
+        </section>
+
+        <section class="message success-message" id="success-message" role="status" hidden>
+          <div class="success-mark">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4 10-10"/></svg>
+          </div>
+          <div>
+            <strong>فایل ZIP آماده شد</strong>
+            <p id="success-text"></p>
+          </div>
+        </section>
+
+        <div class="actions">
+          <button class="primary-button" id="download-button" type="submit">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg>
+            <span>ساخت و دانلود ZIP</span>
+          </button>
+          <button class="cancel-button" id="cancel-button" type="button" hidden>لغو عملیات</button>
+        </div>
+      </form>
+
+      <footer>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.8 8.5 7 10 4.2-1.5 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+        <span>همه‌چیز در مرورگر شما انجام می‌شود؛ هیچ فایلی به سرور دیگری فرستاده نمی‌شود.</span>
+      </footer>
+    </main>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
